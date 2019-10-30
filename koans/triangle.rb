@@ -19,24 +19,33 @@ require 'set'
 def triangle(a, b, c)
   sides = [a, b, c]
 
+  confirm_valid_triangle(sides)
+
+  classify_triangle(sides)
+
+end
+
+private
+
+def confirm_valid_triangle(sides)
   if sides.any? { |s| s <= 0 }
     raise TriangleError
   end
 
   # https://en.wikipedia.org/wiki/Triangle_inequality
-  sides.each do |s|
-    other_sides = sides.clone
-    other_sides.delete_at(sides.index(s))
-
-    # `.sum` not in Ruby 2.3
+  permutations = sides.permutation.to_a
+  permutations.each do |perm_sides|
+    s = perm_sides.shift
     sum_other_sides = 0.0
-    other_sides.each { |s| sum_other_sides += s }
+    perm_sides.each { |p| sum_other_sides += p }
 
     if sum_other_sides <= s
       raise TriangleError
     end
   end
+end
 
+def classify_triangle(sides)
   sides = Set.new(sides)
 
   case sides.size
@@ -48,6 +57,7 @@ def triangle(a, b, c)
       :scalene
   end
 end
+
 
 # Error class used in part 2.  No need to change this code.
 class TriangleError < StandardError
